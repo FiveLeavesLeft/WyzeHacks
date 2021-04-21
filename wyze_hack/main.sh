@@ -575,9 +575,9 @@ cmd_run() {
     # Set hostname
     hostname ${HOSTNAME:-"WyzeCam-$(echo -n $DEVICE_ID | tail -c 4)"}
 
-    if [ -z "$NFS_ROOT" ]; then
-        # No NFS_ROOT specified, skipping all the MMC spoofing thing and run
-        # original init script
+    if [ -z "$NFS_ROOT" && -z "$STREAM_HACK" ]; then
+        # No NFS_ROOT and not STREAM_HACK specified, skipping all the
+		# MMC spoofing thing and run original init script
         $WYZEINIT_SCRIPT&
     else
         # MMC detection hook init

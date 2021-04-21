@@ -2,9 +2,17 @@
 # Make your own copy of this file and put it under the root of SD card
 # with name "config.inc" when installing the hack.
 
+# Uncomment the following variable to enable the live stream hack
+export STREAM_HACK=1
+
+# Uncomment the following variable to have the stream hack produce an
+# output log file
+export STREAM_HACK_OUTPUT=/tmp/stream_hack.log
+
+
 # You need to modify NFS_ROOT to point to your NFS share. The recordings
 # will be stored under $NFS_ROOT/WyzeCams/<MAC_ADDR_OF_YOUR_CAMERA>.
-export NFS_ROOT='192.168.1.10:/volume1'
+# export NFS_ROOT='192.168.1.10:/volume1'
 
 # Some NFS configurations may need special mount options. You can specify
 # them here. The default value is verified on my camera with a NFS v3 share
