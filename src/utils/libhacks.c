@@ -70,11 +70,25 @@ static void  __attribute__((constructor)) init()  {
         } \
     }
 
+// crb
+static int nfs_root() {
+	static int nfs = -1;
+	if(nfs == -1) {
+		char *env = getenv("NFS_ROOT");
+		nfs = env && *env;
+	}
+	return nfs;
+}
+
 int mount(const char *source, const char *target,
     const char *filesystemtype, unsigned long mountflags, const void *data) {
 
     typedef int (*PFN_mount)(const char *, const char *, const char *, unsigned long, const void *);
     DLSYM(mount);
+
+	if(nfs_root() == 0) {
+        return s_pfn(source, target, filesystemtype, mountflags, data);
+	}
 
     printf("mount(source=%s, target=%s, filesystemtype=%s)\n", source, target, filesystemtype);
     if (strcmp(target, "/media/mmc") == 0 ||
@@ -89,6 +103,10 @@ int mount(const char *source, const char *target,
 int umount(const char *target) {
     typedef int (*PFN_umount)(const char*);
     DLSYM(umount);
+
+	if(nfs_root() == 0) {
+        return s_pfn(target);
+	}
 
     if (strcmp(target, "/media/mmc") == 0 ||
         strcmp(target, "/media/mmcblk0p1") == 0) {
@@ -107,6 +125,9 @@ int statfs(const char *path, struct statfs *buf) {
     if (strncmp(path, "/media/mmc", strlen("/media/mmc")) != 0) {
         return ret;
     }
+	if(nfs_root() == 0) {
+        return ret;
+	}
 
     if (ret) {
         perror("statfs failed.\n");
@@ -157,6 +178,10 @@ int access(const char *pathname, int mode) {
     typedef int (*PFN_access)(const char*, int);
     DLSYM(access);
 
+	if(nfs_root() == 0) {
+        return s_pfn(pathname, mode);
+	}
+
     if (strcmp(pathname, "/proc/jz/mmc0") == 0 || 
         strcmp(pathname, "/dev/mmcblk0p1") == 0 ||
         strcmp(pathname, "/dev/mmcblk0") == 0) {
@@ -169,6 +194,10 @@ int access(const char *pathname, int mode) {
 int open(char * file, int oflag) {
     typedef int (*PFN_open)(const char*, int);
     DLSYM(open);
+
+	if(nfs_root() == 0) {
+    	return s_pfn(file, oflag);
+	}
 
     if (g_hackdata->mmc_gpio_redir[0]) {
         for (int i = 0; i < ARRAY_SIZE(mmc_gpio_paths); i ++) {
